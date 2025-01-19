@@ -42,7 +42,7 @@ app.post('/register', async (req, res) => {
         if (data.rows.length === 0) {
             await pg_obj.query("insert into users(email, password) values($1, $2);", [email, password]);
             let { rows } = await pg_obj.query("select user_id from users where email = $1;", [email]);
-            console.log(1,rows[0].user_id);
+            console.log(1, rows[0].user_id);
             let user_id = rows[0].user_id;
             //`/?user_id=${rows[0].user_id}`
             //const user_id = req.query.user_id;
@@ -66,7 +66,7 @@ app.post('/login', async (req, res, next) => {
         if (password === data.rows[0].password) {
             let user_id = data.rows[0].user_id;
             res.cookie('user_id', user_id, { maxAge: 60 * 60 * 1000 });
-            console.log(2,data.rows[0].email);
+            console.log(2, data.rows[0].email);
             res.redirect('/');
         }
         else {
@@ -83,8 +83,8 @@ app.get('/', async (req, res, next) => {
         const user_id = req.cookies.user_id;
         if (user_id) {
             try {
-                console.log(3,user_id);
-                let response = await pg_obj.query("select * from todo where user_id = $1;", [user_id]);
+                console.log(3, user_id);
+                let response = await pg_obj.query("select * from todo where user_id = $1 order by id asc;", [user_id]);
                 //console.log(4, response.rows);
                 if (response.rows.length > 0) {
                     res.render('index', { list: response.rows });
@@ -122,8 +122,8 @@ app.post('/add/:user_id', async (req, res, next) => {
     try {
         let job = req.body.job;
         let user_id = parseInt(req.params.user_id);
-        console.log(5,job, user_id);
-        pg_obj.query("insert into todo(todo_name, user_id) values($1, $2);", [job, user_id]);
+        console.log(5, job, user_id);
+        await pg_obj.query("insert into todo(todo_name, user_id) values($1, $2);", [job, user_id]);
         res.redirect('/');
     }
     catch (err) {
@@ -131,7 +131,7 @@ app.post('/add/:user_id', async (req, res, next) => {
     }
 });
 
-app.get('/logout', (req, res, next) => {
+app.get('/logout', async (req, res, next) => {
     try {
         res.clearCookie('user_id');
         res.redirect('/todo');
@@ -144,7 +144,7 @@ app.get('/logout', (req, res, next) => {
 app.use((err, req, res, next) => {
     console.error(err.stack)
     res.status(500).send('Something broke!')
-  })
+})
 
 app.listen(process.env.PORT, () => {
     console.log("The server is listening port: " + process.env.PORT);
