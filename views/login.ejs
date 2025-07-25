@@ -71,7 +71,8 @@
              event.preventDefault();
              let c = confirm("Are you sure:");
              if(c){
-                btn.closest('form').submit();
+                // btn.closest('form').submit();
+                form.submit();
              }
         });
     </script>

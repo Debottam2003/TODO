@@ -144,8 +144,8 @@ app.get('/logout', async (req, res, next) => {
 app.use((err, req, res, next) => {
     console.error(err.stack)
     res.status(500).send('Something broke!')
-})
+});
 
 app.listen(process.env.PORT, () => {
     console.log("The server is listening port: " + process.env.PORT);
-})
+});
